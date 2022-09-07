@@ -1,63 +1,61 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <time.h>
+#include <stdbool.h>
 
-/* innitial size of buffer for user input */
-#define READ_BUF 1000
-
-#define DELIM " \a\t\r\n"
-
-/* command type */
-#define INTERNAL_CMD 1
-#define EXTERNAL_CMD 2
-#define PATH_CMD 3
-#define INVALID_CMD -1
-
-/* declaring global environ variable */
+/* environment variables */
 extern char **environ;
+extern __sighandler_t signal(int __sig, __sighandler_t __handler);
 
-typedef struct internal_func
+/* handle built ins */
+int checker(char **cmd, char *buf);
+void prompt_user(void);
+void handle_signal(int m);
+char **tokenizer(char *line);
+char *test_path(char **path, char *command);
+char *append_path(char *path, char *command);
+int handle_builtin(char **command, char *line);
+void exit_cmd(char **command, char *line);
+
+void print_env(void);
+
+/* string handlers */
+int _strcmp(char *s1, char *s2);
+int _strlen(char *s);
+int _strncmp(char *s1, char *s2, int n);
+char *_strdup(char *s);
+char *_strchr(char *s, char c);
+
+void execution(char *cp, char **cmd);
+char *find_path(void);
+
+/* helper function for efficient free */
+void free_buffers(char **buf);
+
+struct builtin
 {
-	char *cmd_name;
-	void (*func)(char **command);
-} map_func;
+	char *env;
+	char *exit;
+} builtin;
 
-/* builtin command */
-void env(char **);
-void ch_dir(char **);
-void quit(char **);
+struct info
+{
+	int final_exit;
+	int ln_count;
+} info;
 
-/* shell utility function */
-void ctrl_C(int);
-char *_getline(void);
-char **tokenize(char *, const char *);
-void shell_execute(char **, int);
-int check_command(char *);
-void execute(char **, int);
-
-
-
-/* shell helper function */
-int print(char *, int);
-void (*get_func(char *))(char **);
-
-/* shell string functions */
-int _strlen(char *);
-int _strcmp(char*, char *);
-
-
-/* shell memory management */
-void *_realloc(void *, int, int);
-
-
-/* environment path */
-char *_getenv(char *);
+struct flags
+{
+	bool interactive;
+} flags;
 
 #endif /* SHELL_H */
